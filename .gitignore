@@ -100,4 +100,10 @@ $RECYCLE.BIN/
 **/*.rewrite.sh
 **/*.refactor.sh
 
+# Go build artifacts (rebuilt inside Docker per AI.md PART 0)
+/binaries/
+/releases/
 
+# Docker compose runtime volumes (never committed)
+/docker/volumes/
+/volumes/

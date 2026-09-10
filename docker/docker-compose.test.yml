@@ -1,0 +1,28 @@
+# Automated test compose. AI's preferred interface is tests/ scripts
+# rather than invoking this file directly (dockerfile_conventions.md →
+# "AI Docker Compose rules").
+name: casai-test
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "1"
+
+services:
+  casai:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: casai-test
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+    command: ["casai", "--version"]
+    networks:
+      - casai-test
+
+networks:
+  casai-test:
+    name: casai-test
+    external: false

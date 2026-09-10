@@ -1,0 +1,36 @@
+# Human development only — uses the :devel image (docker/Dockerfile.dev).
+# AI prefers `make dev` / `make test`, never this file directly.
+name: casai-dev
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "1"
+
+services:
+  casai:
+    image: ghcr.io/casapps/casai:devel
+    container_name: casai-dev
+    hostname: casai
+    logging: *default-logging
+    environment:
+      DEBUG: 1
+      MODE: dev
+      TZ: ${TZ:-America/New_York}
+    volumes:
+      - ./volumes/config:/config:z
+      - ./volumes/data:/data:z
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/casai", "--version"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - casai-dev
+
+networks:
+  casai-dev:
+    name: casai-dev
+    external: false

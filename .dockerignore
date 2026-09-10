@@ -1,0 +1,31 @@
+# .dockerignore created on 09/10/26 at 02:18
+
+# version control
+.git/
+.gitignore
+.gitattributes
+
+# local and secret config
+.env
+app.env
+default.env
+.claude/
+
+# build artifacts
+binaries/
+releases/
+
+# runtime volume data (never in image)
+volumes/
+docker/volumes/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# docs and meta (not needed in image)
+*.md
+LICENSE*
+
+# Go toolchain cache (mounted at build time, not baked in)
+vendor/

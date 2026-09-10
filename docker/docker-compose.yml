@@ -1,0 +1,58 @@
+# casai has no network listener in v1 (IDEA.md → "App surfaces in scope" —
+# no daemon/IPC mode), so this compose file runs the CLI/GUI/TUI binary
+# on-demand rather than as a long-lived exposed service. No ports, no cache.
+name: casai
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "1"
+
+services:
+  casai:
+    image: ghcr.io/casapps/casai:latest
+    container_name: casai-app
+    hostname: casai
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: casai-app
+    volumes:
+      - ./volumes/config:/config:z
+      - ./volumes/data:/data:z
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/casai", "--version"]
+      interval: 5m
+      timeout: 15s
+      retries: 3
+      start_period: 10s
+    networks:
+      - casai
+
+  # GUI smoke-test service — forwards X11/Wayland per AI.md PART 5 →
+  # "X11 and Wayland Forwarding (Mandatory for GUI/Display Testing)".
+  gui:
+    image: ghcr.io/casapps/casai:latest
+    container_name: casai-gui
+    hostname: casai-gui
+    profiles: ["gui"]
+    logging: *default-logging
+    environment:
+      DISPLAY: ${DISPLAY:-}
+      WAYLAND_DISPLAY: ${WAYLAND_DISPLAY:-}
+      XDG_RUNTIME_DIR: /tmp/xdg
+      XAUTHORITY: /tmp/.docker.xauth
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-/dev/null}:/tmp/.docker.xauth:ro
+    devices:
+      - /dev/dri
+    command: ["casai", "--ui", "gui"]
+    networks:
+      - casai
+
+networks:
+  casai:
+    name: casai
+    external: false
